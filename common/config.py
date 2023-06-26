@@ -19,3 +19,5 @@ SERVER_HOST = '127.0.0.1'   ### 上传服务器
 # 上传文章
 ARTICLEUPLOAD = 'http://{0}:8855/articleMaterials/add'.format(SERVER_HOST)
 
+MONGO_URI = f'mongodb://{MONGO_USR}:{MONGO_PWD}@{MONGO_HOST}:27017/{MONGO_DB}'
+

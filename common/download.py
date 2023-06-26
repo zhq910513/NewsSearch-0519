@@ -15,13 +15,14 @@ from multiprocessing.pool import ThreadPool
 from os import path
 
 import requests
-
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 from common.log_out import log_err, log
-from dbs.pipelines import MongoPipeline
-from .config import ARTICLEUPLOAD
+from .config import ARTICLEUPLOAD, MONGO_URI, MONGO_DB
 
-url_coll = MongoPipeline("urls")
-article_coll = MongoPipeline("articles")
+client = MongoClient(MONGO_URI)
+url_coll = client[MONGO_DB]["urls"]
+article_coll = client[MONGO_DB]["articles"]
 requests.packages.urllib3.disable_warnings()
 
 picHeaders = {
@@ -176,14 +177,17 @@ def UploadArticle(dataJson: dict):
                 print("文章id {0} *** upload Article successfully *** upload status {1}".format(dataJson.get('id'), resp.json().get('code')))
 
                 # 数据备份与标记
-                url_coll.update_item({'hash_key': None}, {'hash_key': dataJson.get('id'), 'status': 1})
-                article_coll.insert_item(dataJson)
+                url_coll.update_one({'hash_key': dataJson.get('id')}, {"$set":{'hash_key': dataJson.get('id'), 'status': 1}}, upsert=True)
+                try:
+                    article_coll.insert_one(dataJson)
+                except DuplicateKeyError:
+                    pass
             elif resp.json().get('status') == 500 and 'DuplicateKey' in resp.json().get('exception'):
                 pass
             elif resp.json().get('status') == 500 and resp.json().get('error') == 'Internal Server Error':
                 try:
                     print(resp.json())
-                    url_coll.update_item({'hash_key': None}, {'hash_key': dataJson.get('id'), 'status': 500})
+                    url_coll.update_item({'hash_key': dataJson.get('id')}, {"$set":{'hash_key': dataJson.get('id'), 'status': 500}}, upsert=True)
                 except:
                     pass
             else:

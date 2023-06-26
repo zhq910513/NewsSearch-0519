@@ -2,14 +2,27 @@ import hashlib
 import pprint
 import time
 
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+
+from common.config import MONGO_URI, MONGO_DB
+
 pp = pprint.PrettyPrinter(indent=4)
 import requests
 from bs4 import BeautifulSoup
 
 from common.log_out import log_err
-from dbs.pipelines import MongoPipeline
 
-url_coll = MongoPipeline("urls")
+client = MongoClient(MONGO_URI)
+url_coll = client[MONGO_DB]["urls"]
+
+
+def insert_list(coll, _list):
+    for item in _list:
+        try:
+            coll.insert_one(item)
+        except DuplicateKeyError:
+            pass
 
 
 # plasticstoday   ajax
@@ -63,8 +76,7 @@ def plasticstoday_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll,url_list)
 
 
 # interplasinsights
@@ -133,7 +145,7 @@ def interplasinsights_first_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 def interplasinsights_second_parse(source, _html):
@@ -171,7 +183,7 @@ def interplasinsights_second_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # sustainableplastics
@@ -242,8 +254,7 @@ def sustainableplastics_first_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 def sustainableplastics_second_parse(source, _html):
@@ -280,8 +291,7 @@ def sustainableplastics_second_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # kunststoffe
@@ -335,8 +345,7 @@ def kunststoffe_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # plasticportal
@@ -391,8 +400,7 @@ def plasticportal_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # medicalplasticsnews
@@ -451,8 +459,7 @@ def medicalplasticsnews_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 ## packagingnews
@@ -505,8 +512,7 @@ def packagingnews_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # packworld
@@ -560,8 +566,7 @@ def packworld_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # packagingdigest
@@ -615,8 +620,7 @@ def packagingdigest_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # packagingeurope
@@ -668,8 +672,7 @@ def packagingeurope_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # ptonline
@@ -723,8 +726,7 @@ def ptonline_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 # phys
@@ -776,8 +778,7 @@ def phys_parse(source, _html):
         log_err(error)
     finally:
         if url_list:
-            # pp.pprint(url_list)
-            url_coll.insert_item(url_list)
+            insert_list(url_coll, url_list)
 
 
 def run_urls():

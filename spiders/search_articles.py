@@ -7,11 +7,12 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+from pymongo import MongoClient
 
+from common.config import MONGO_URI, MONGO_DB
 from common.download import command_thread, UploadArticle
 
 pp = pprint.PrettyPrinter(indent=4)
-from dbs.pipelines import MongoPipeline
 from common.log_out import log_err
 
 format_data = {
@@ -37,8 +38,8 @@ format_data = {
     'updateTime': None,  # string($date-time) 更新时间
 }
 
-url_coll = MongoPipeline("urls")
-article_coll = MongoPipeline("articles")
+client = MongoClient(MONGO_URI)
+url_coll = client[MONGO_DB]["urls"]
 
 
 def get_article(info, retry=0):
